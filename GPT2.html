@@ -1,0 +1,146 @@
+چھ<!DOCTYPE html>
+<html lang="ur">
+<head>
+  <meta charset="UTF-8" />
+  <title>AmirGPT Pro – مفت چیٹ بوٹ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    h1 {
+      text-align: center;
+      color: #10b981;
+    }
+    .chat-box {
+      background: #0f172a;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+    .message {
+      padding: 8px 12px;
+      border-radius: 10px;
+      margin: 5px 0;
+    }
+    .bot {
+      background-color: #334155;
+      text-align: left;
+    }
+    .user {
+      background-color: #10b981;
+      color: black;
+      text-align: right;
+    }
+    .input-area {
+      display: flex;
+      flex-direction: column;
+    }
+    textarea {
+      padding: 10px;
+      border-radius: 5px;
+      resize: none;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background: #10b981;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 AmirGPT Pro</h1>
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">میں AmirGPT ہوں، سوال کریں 📩</div>
+    </div>
+    <div class="input-area">
+      <textarea id="userInput" placeholder="اپنا سوال یہاں لکھیں..."></textarea>
+      <button onclick="askGPT()">بھیجیں</button>
+    </div>
+  </div>
+<script>
+  async function askGPT() {
+    const input = document.getElementById("userInput").value.trim();
+    if (!input) return;
+
+    const chatBox = document.getElementById("chatBox");
+
+    const userMsg = document.createElement("div");
+    userMsg.className = "message user";
+    userMsg.innerText = input;
+    chatBox.appendChild(userMsg);
+
+    const loadingMsg = document.createElement("div");
+    loadingMsg.className = "message bot";
+    loadingMsg.innerText = "⏳ جواب تیار ہو رہا ہے...";
+    chatBox.appendChild(loadingMsg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer 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"
+        },
+        body: JSON.stringify({
+          model: "mistralai/mistral-7b-instruct",
+          messages: [
+            { role: "system", content: "تم ایک مددگار چیٹ بوٹ ہو جو اردو اور انگریزی میں تفصیلی جواب دیتا ہے۔" },
+            { role: "user", content: input }
+          ]
+        })
+      });
+
+      const data = await response.json();
+      loadingMsg.remove();
+
+      if (data.choices && data.choices.length > 0) {
+        const reply = document.createElement("div");
+        reply.className = "message bot";
+        reply.innerText = data.choices[0].message.content;
+        chatBox.appendChild(reply);
+      } else {
+        const errorMsg = document.createElement("div");
+        errorMsg.className = "message bot";
+        errorMsg.innerText = "❌ کوئی جواب نہیں ملا۔";
+        chatBox.appendChild(errorMsg);
+      }
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+    } catch (error) {
+      loadingMsg.remove();
+      const errorMsg = document.createElement("div");
+      errorMsg.className = "message bot";
+      errorMsg.innerText = "❌ کوئی مسئلہ ہو گیا۔ انٹرنیٹ یا API key چیک کریں۔";
+      chatBox.appendChild(errorMsg);
+    }
+  }
+</script>
+</body>
+</html>
+ 
